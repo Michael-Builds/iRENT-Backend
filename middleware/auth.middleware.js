@@ -6,10 +6,8 @@ import { CatchAsyncErrors } from "./catchAsyncError.js";
 
 
 export const isAuthenticated = CatchAsyncErrors(async (req, res, next) => {
-    
-    const access_token = req.cookies.access_token || req.headers['authorization']?.split(' ')[1];
 
-    console.log("Access token ", access_token);
+    const access_token = req.cookies.access_token || req.headers['authorization']?.split(' ')[1];
 
     if (!access_token) {
         return next(new ErrorHandler("Please login to access this resource", 401));
@@ -37,7 +35,6 @@ export const isAuthenticated = CatchAsyncErrors(async (req, res, next) => {
 export const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         try {
-            // Ensure req.user is populated (typically done by authentication middleware)
             const user = req.user
 
             // Check if the user's role is included in the allowed roles
