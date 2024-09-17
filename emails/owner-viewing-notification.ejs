@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Viewing Request Confirmation</title>
+    <title>New Viewing Request</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:ital,wght@0,200..1000&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;400;600&display=swap"
       rel="stylesheet"
     />
     <style type="text/css">
@@ -25,7 +25,6 @@
         color: #000;
         text-decoration: none;
       }
-
       h1 {
         font-size: 20px;
         font-weight: 600;
@@ -34,7 +33,6 @@
         margin-bottom: 8px;
         text-align: center;
       }
-
       p {
         margin-top: 0;
         margin-bottom: 20px;
@@ -42,75 +40,53 @@
       table td {
         vertical-align: top;
       }
-
       .email-wrapper {
         max-width: 600px;
         margin: 0 auto;
       }
-
       .email-header {
         background-color: #28a745;
-        padding: 20px 5px;
+        padding: 20px;
         color: #ffffff;
         border-radius: 8px 8px 0 0;
         text-align: center;
       }
       .email-body {
-        padding: 10px;
+        padding: 20px;
         background-color: #ffffff;
       }
-
       .email-footer {
         background-color: #f4f4f4;
-        padding: 20px;
-      }
-
-      .button {
-        display: inline-block;
-        background-color: #28a745;
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 600;
+        padding: 10px;
         text-align: center;
-        text-decoration: none;
-        padding: 12px 20px;
-        border-radius: 4px;
+        font-size: 12px;
+        color: #777777;
       }
     </style>
   </head>
   <body>
     <div class="email-wrapper">
       <div class="email-header">
-        <h1>Viewing Request Confirmation</h1>
+        <h1>New Viewing Request</h1>
       </div>
       <div class="email-body">
-        <p>Dear <%= user.firstname %>,</p>
+        <p>Dear <%= ownerName %>,</p>
         <p>
-          Your request for viewing the property located at
-          <strong><%= property.address %></strong> has been successfully
-          submitted.
+          You have received a new viewing request for your property located at
+          <%= propertyAddress %>.. Below are the details of the request:
         </p>
-        <p>Here are the details of your viewing request:</p>
-        <ul>
-          <li><strong>Preferred Date:</strong> <%= viewing.preferredDate %></li>
-          <li><strong>Viewing Type:</strong> <%= viewing.viewingType %></li>
-          <li><strong>Property Category:</strong> <%= property.category %></li>
-          <li>
-            <strong>Property Price per month:</strong> Ghc <%= property.price %>
-          </li>
-          <li>
-            <strong>Amenities:</strong> <%= property.amenities.map(a =>
-            a.name).join(", ") %>
-          </li>
-        </ul>
+        <p><strong>Requested By:</strong> <%= userName %></p>
+        <p><strong>Preferred Date:</strong> <%= requestedDate %></p>
+        <p><strong>Viewing Type:</strong> <%= viewingType %></p>
         <p>
-          Our team will reach out to you shortly to confirm the details. For any
-          questions, please contact us at
+          If you have any questions or need further information, please contact
+          us at
           <a href="mailto:support@irentservices.com"
             >support@irentservices.com</a
           >.
         </p>
-        <p>Thank you for choosing iRENT Services!</p>
+        <p>Thank you for using our service!</p>
+        <p>Best regards,<br />The iRENT Services! Team</p>
       </div>
       <div class="email-footer">
         <p>

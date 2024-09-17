@@ -47,15 +47,15 @@ const userSchema = new mongoose.Schema({
     },
 
     hostels_underreview: [{
-        hostelId: {
+        propertyId: {
             type: String,
-            ref: "Hostel",
+            ref: "Property",
         }
     }],
     chosen_hostel: {
-        hostelId: {
+        propertyId: {
             type: String,
-            ref: "Hostel",
+            ref: "Property",
         }
     },
     hasRequestedDeactivation: {

@@ -1,6 +1,7 @@
 import express from 'express';
 import {
     acccountActivation,
+    getAllUsers,
     getUserInfo,
     login,
     logout,
@@ -8,9 +9,10 @@ import {
     resendActivationCode,
     resetPassword,
     resetPasswordRequest,
-    updateAccessToken
+    updateAccessToken,
+    updateUserRole
 } from '../controllers/user.controller.js';
-import { isAuthenticated } from '../middleware/auth.middleware.js';
+import { authorizeRoles, isAuthenticated } from '../middleware/auth.middleware.js';
 import { getUserNotifications } from '../controllers/notification.controller.js';
 
 const userRouter = express.Router();
@@ -25,9 +27,13 @@ userRouter.post("/resend-activation", resendActivationCode);
 userRouter.post("/refresh-token", updateAccessToken);
 
 // Authenticated User Routes
-userRouter.get("/logout", isAuthenticated, logout); 
+userRouter.get("/logout", isAuthenticated, logout);
 userRouter.get("/user-info", isAuthenticated, getUserInfo);
 userRouter.get("/user-notifications", isAuthenticated, getUserNotifications);
+
+// Admin-Only Routes
+userRouter.get("/all-users", isAuthenticated, authorizeRoles("admin"), getAllUsers);
+userRouter.put("/update-role", isAuthenticated, authorizeRoles("admin"), updateUserRole);
 
 export default userRouter;
 

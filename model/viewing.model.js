@@ -17,8 +17,18 @@ const viewingSchema = new mongoose.Schema({
     },
     viewingType: {
         type: String,
-        required: [true, "Please enter your prefered type"],
-    }
+        required: [true, "Please enter your preferred type"],
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected'],
+        default: 'pending'
+    },
+
 }, { timestamps: true });
 
 const viewingModel = mongoose.model('Viewing', viewingSchema);

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Viewing Request Confirmation</title>
+    <title>Viewing Request Accepted</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -81,31 +81,28 @@
   <body>
     <div class="email-wrapper">
       <div class="email-header">
-        <h1>Viewing Request Confirmation</h1>
+        <h1>Viewing Request Accepted</h1>
       </div>
       <div class="email-body">
         <p>Dear <%= user.firstname %>,</p>
         <p>
-          Your request for viewing the property located at
-          <strong><%= property.address %></strong> has been successfully
-          submitted.
+          We are pleased to inform you that your request for viewing the property
+          located at <strong><%= property.address %></strong> has been accepted.
         </p>
-        <p>Here are the details of your viewing request:</p>
+        <p>Here are the details of your viewing:</p>
         <ul>
           <li><strong>Preferred Date:</strong> <%= viewing.preferredDate %></li>
           <li><strong>Viewing Type:</strong> <%= viewing.viewingType %></li>
           <li><strong>Property Category:</strong> <%= property.category %></li>
-          <li>
-            <strong>Property Price per month:</strong> Ghc <%= property.price %>
-          </li>
+          <li><strong>Property Price per month:</strong> Ghc <%= property.price %></li>
           <li>
             <strong>Amenities:</strong> <%= property.amenities.map(a =>
             a.name).join(", ") %>
           </li>
         </ul>
         <p>
-          Our team will reach out to you shortly to confirm the details. For any
-          questions, please contact us at
+          We will reach out to you soon with further details. If you have any
+          questions, feel free to contact us at
           <a href="mailto:support@irentservices.com"
             >support@irentservices.com</a
           >.

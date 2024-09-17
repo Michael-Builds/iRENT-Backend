@@ -14,7 +14,7 @@ import userModel from "../model/user.model.js";
 import { getUserById } from "../services/user.services.js";
 import { clearCache, setCache } from "../utils/catche.manage.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
-import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt.js";
+import { sendToken } from "../utils/jwt.js";
 import { redis } from "../utils/redis.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
@@ -299,7 +299,6 @@ export const resetPasswordRequest = CatchAsyncErrors(async (req, res, next) => {
     }
 });
 
-
 // Reset password function
 export const resetPassword = CatchAsyncErrors(async (req, res, next) => {
     const { token, activationCode, newPassword } = req.body;
@@ -338,7 +337,6 @@ export const resetPassword = CatchAsyncErrors(async (req, res, next) => {
     }
 });
 
-
 // Create reset password token
 export const createResetPasswordCode = (user) => {
     const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -351,49 +349,53 @@ export const createResetPasswordCode = (user) => {
 };
 
 // Update access token handler
-export const updateAccessToken = CatchAsyncErrors(async (req, res, next) => {
+export const updateAccessToken = async (req, res, next) => {
     try {
-        const refresh_token = req.cookies.refresh_token || req.body.refresh_token;
-        if (!refresh_token) {
+        const refreshToken = req.cookies.refresh_token || req.body.refresh_token;
+        if (!refreshToken) {
             return next(new ErrorHandler("Refresh token is missing", 400));
         }
 
-        const decoded = jwt.verify(refresh_token, REFRESH_TOKEN);
-        if (!decoded) {
-            return next(new ErrorHandler("Invalid refresh token", 400));
-        }
+        // Verify the refresh token
+        const decoded = jwt.verify(refreshToken, REFRESH_TOKEN);
 
+        // Retrieve session data from Redis (check if the user session is still valid)
         const session = await redis.get(decoded.id);
         if (!session) {
-            return next(new ErrorHandler("Please login to access this resource", 400));
+            return next(new ErrorHandler("Session expired. Please log in again.", 401));
         }
 
+        // Parse the user session and create new access and refresh tokens
         const user = JSON.parse(session);
 
         const accessToken = jwt.sign({ id: user._id }, ACCESS_TOKEN, {
-            expiresIn: ACCESS_TOKEN_EXPIRY,
+            expiresIn: ACCESS_TOKEN_EXPIRY, // 30 minutes
         });
 
-        const refreshToken = jwt.sign({ id: user._id }, REFRESH_TOKEN, {
-            expiresIn: REFRESH_TOKEN_EXPIRY,
+        const newRefreshToken = jwt.sign({ id: user._id }, REFRESH_TOKEN, {
+            expiresIn: REFRESH_TOKEN_EXPIRY, // 14 days
         });
 
-        res.cookie("access_token", accessToken, accessTokenOptions);
-        res.cookie("refresh_token", refreshToken, refreshTokenOptions);
+        // Set new tokens in cookies (or send them in response)
+        res.cookie('access_token', accessToken, { httpOnly: true, maxAge: 1800000 }); // 30 minutes
+        res.cookie('refresh_token', newRefreshToken, { httpOnly: true, maxAge: 1209600000 }); // 14 days
 
-        await setCache(user?.id, user, 604800);
+        // Refresh the session cache in Redis
+        await setCache(user._id, user, 604800); // Cache for 7 days
 
+        // Return the new access token to the client
         res.status(200).json({
             success: true,
             accessToken,
         });
     } catch (err) {
-        console.error("Token refresh failed:", err.message);  // Log the error
-        return next(new ErrorHandler("Authorization failed", 500));
+        console.error('Error refreshing access token:', err.message);
+        return next(new ErrorHandler('Authorization failed', 500));
     }
-});
+};
 
 
+// Controller to fetch user information
 export const getUserInfo = CatchAsyncErrors(async (req, res, next) => {
     try {
         let userId;
@@ -442,3 +444,63 @@ export const getUserInfo = CatchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler(err.message, 400));
     }
 })
+
+
+// Controller to fetch all users (admin only)
+export const getAllUsers = CatchAsyncErrors(async (req, res, next) => {
+    try {
+        // Ensure the user is an admin
+        if (req.user.role !== 'admin') {
+            return next(new ErrorHandler("You do not have permission to access this resource", 403));
+        }
+
+        // Fetch all users from the database
+        const users = await userModel.find().select("-password");
+
+        res.status(200).json({
+            success: true,
+            message: "Users retrieved successfully",
+            users
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+});
+
+
+
+// Controller to update a user's role (admin only)
+export const updateUserRole = CatchAsyncErrors(async (req, res, next) => {
+    try {
+        const { userId, role } = req.body;
+
+        // Check if the role is valid
+        const validRoles = ['user', 'landlord', 'admin'];
+        if (!validRoles.includes(role)) {
+            return next(new ErrorHandler("Invalid role provided", 400));
+        }
+
+        // Ensure the user making the request is an admin
+        if (req.user.role !== 'admin') {
+            return next(new ErrorHandler("You do not have permission to update roles", 403));
+        }
+
+        // Find the user to update
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        // Update the user's role
+        user.role = role;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: `User role updated to ${role}`,
+            user
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+});
