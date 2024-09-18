@@ -2,11 +2,10 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import { ErrorMiddleware } from "./middleware/error.js";
-import userRouter from './routes/user.route.js';
-import propertyRouter from './routes/property.route.js';
 import favoritesRouter from './routes/favorites.route.js';
+import propertyRouter from './routes/property.route.js';
+import userRouter from './routes/user.route.js';
 import viewingRouter from './routes/viewing.route.js';
-import { ORIGIN } from './config/index.js';
 
 export const app = express();
 
@@ -14,10 +13,20 @@ app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
 
 
+const allowedOrigins = ['https://i-rent-frontend.vercel.app', 'http://localhost:5173'];
+
 app.use(cors({
-    origin: 'https://i-rent-frontend.vercel.app',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
-}))
+}));
+
+
 
 // routes
 app.use("/auth/api", userRouter);
