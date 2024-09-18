@@ -16,7 +16,13 @@ app.use(cookieParser());
 const allowedOrigins = ['https://i-rent-frontend.vercel.app', 'http://localhost:5173'];
 
 app.use(cors({
-    origin: "https://i-rent-frontend.vercel.app",
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
