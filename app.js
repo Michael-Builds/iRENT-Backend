@@ -12,7 +12,6 @@ export const app = express();
 app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
 
-
 const allowedOrigins = ['https://i-rent-frontend.vercel.app', 'http://localhost:5173'];
 
 app.use(cors({
@@ -26,19 +25,23 @@ app.use(cors({
     credentials: true
 }));
 
+// Define a root route
+app.get('/', (req, res) => {
+    res.send('Welcome to the iRent API');
+});
 
-
-// routes
+// Routes
 app.use("/auth/api", userRouter);
 app.use("/property/api", propertyRouter);
 app.use("/favorites/api", favoritesRouter);
 app.use("/viewing/api", viewingRouter);
 
-
+// Handle 404 errors for unknown routes
 app.all("*", (req, res, next) => {
-    const err = new Error(`Route ${req.originalUrl} not found`);
-    err.status = 404;
-    next(err);
-})
+    res.status(404).json({
+        message: `Route ${req.originalUrl} not found`
+    });
+});
 
+// Error handling middleware
 app.use(ErrorMiddleware);
