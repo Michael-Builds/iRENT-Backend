@@ -16,7 +16,7 @@ const createRedisClient = () => {
         });
 
         client.on('connect', () => {
-            console.log(colors.bgMagenta.white(`Connected to Redis at ${REDIS_URL}`));
+            console.log(colors.bgMagenta.white(`Connected to Redis!`));
         });
 
         return client;
