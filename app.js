@@ -15,18 +15,9 @@ app.use(cookieParser());
 
 
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        if (ORIGIN.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: 'https://i-rent-frontend.vercel.app',
     credentials: true
-}));
+}))
 
 // routes
 app.use("/auth/api", userRouter);
