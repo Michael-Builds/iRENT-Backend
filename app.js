@@ -12,6 +12,7 @@ export const app = express();
 app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
 
+// Allowed routes for out application
 const allowedOrigins = ['https://i-rent-frontend.vercel.app', 'http://localhost:5173'];
 
 app.use(cors({
